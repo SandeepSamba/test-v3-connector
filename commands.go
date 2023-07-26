@@ -3,6 +3,7 @@ package dummy_connector
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/spf13/cobra"
@@ -80,8 +81,22 @@ func Serve() error {
 }
 
 func rootFunc(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	config, err := fetchFileContents("/etc/connector/config.json")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "file read error"+err.Error())
+		fmt.Println("file read error", err.Error())
+		return
+	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(testConfig)
-	fmt.Println("responded")
+	fmt.Fprintf(w, config)
+	fmt.Println("responded", config)
+}
+
+func fetchFileContents(filePath string) (string, error) {
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read the file: %v", err)
+	}
+	return string(data), nil
 }
