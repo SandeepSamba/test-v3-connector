@@ -72,7 +72,7 @@ func BuildServeCommand() *cobra.Command {
 func Serve() error {
 	fmt.Println("starting server")
 	http.HandleFunc("/", rootFunc)
-	err := http.ListenAndServe(":8090", nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		return nil
 	}
